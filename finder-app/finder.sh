@@ -10,6 +10,7 @@ else
 	SEARCHSTR=$2
 fi
 
+
 # Searching directory FILESDIR for files containing string SEARCHSTR
 NUM_FILES_MATCHED=$(grep -rlc $SEARCHSTR $FILESDIR/* | wc -l)
 NUM_FILES_SEARCHED=$(grep -cr $SEARCHSTR $FILESDIR/* | cut -d: -f2 | wc -w)

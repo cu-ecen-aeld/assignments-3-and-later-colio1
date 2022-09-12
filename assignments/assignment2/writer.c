@@ -1,14 +1,9 @@
-#define _GNU_SOURCE
 /*******************************************************************************
 * INCLUDES
 *******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <syslog.h>
-#include <errno.h>
-#include <signal.h>
-#include <sys/types.h>
 
 /*******************************************************************************
 * DEFINITIONS

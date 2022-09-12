@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 	{
 		//Write to SYSLOG
 		syslog(LOG_ERR, "Error: Incorrect number of arguments supplied.\n");
-		exit(ERROR);
+		return 1;
 	}
 
 	// Creates a file with file access as write-plus mode
@@ -60,5 +60,5 @@ int main(int argc, char *argv[])
 	// closes the file pointed by userFP
 	fclose(userFP);
 
-	return OK;
+	return 0;
 }

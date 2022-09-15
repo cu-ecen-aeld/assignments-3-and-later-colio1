@@ -1,3 +1,8 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <fcntl.h>
 #include "systemcalls.h"
 
 /**
@@ -9,15 +14,10 @@
 */
 bool do_system(const char *cmd)
 {
-
-/*
- * TODO  add your code here
- *  Call the system() function with the command set in the cmd
- *   and return a boolean true if the system() call completed with success
- *   or false() if it returned a failure
-*/
-
-    return true;
+    if (system(cmd) == -1)
+       return false;
+    else
+       return true;
 }
 
 /**
@@ -40,6 +40,9 @@ bool do_exec(int count, ...)
     va_start(args, count);
     char * command[count+1];
     int i;
+	pid_t childPID;
+	int childStatus;
+
     for(i=0; i<count; i++)
     {
         command[i] = va_arg(args, char *);
@@ -58,10 +61,22 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
+	childPID = fork();
+	if(childPID == -1) // This is an error state
+		return -1;
+	else if(childPID == 0) // This is done by the child process.
+	{
+		execv(command[0], command);
+		return -1;
+	}
 
-    va_end(args);
+	wait(&childStatus);
+	if(childStatus != 0)
+		return false;
 
-    return true;
+   va_end(args);
+
+   return true;
 }
 
 /**
@@ -75,6 +90,10 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
     va_start(args, count);
     char * command[count+1];
     int i;
+	int userFP; // to FILE
+	pid_t childPID;
+	int childStatus;
+
     for(i=0; i<count; i++)
     {
         command[i] = va_arg(args, char *);
@@ -92,6 +111,27 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
+
+	childPID = fork();
+	if(childPID == -1) // This is an error state
+		return -1;
+	else if(childPID == 0) // This is done by the child process.
+	{
+		// redirect to output file
+		userFP = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
+		if(userFP == -1)
+			return -1;
+		dup2(userFP, 1);
+		close(userFP);
+
+		// Preform command
+		execv(command[0], command);
+		return false;
+	}
+
+	wait(&childStatus);
+	if(childStatus != 0)
+		return false;
 
     va_end(args);
 

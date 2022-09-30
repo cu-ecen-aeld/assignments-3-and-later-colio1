@@ -13,12 +13,16 @@ struct thread_data{
      * into this structure, use this structure to communicate
      * between the start_thread_obtaining_mutex function and
      * your thread implementation.
-     */
+    */
+    // pid_t tid;
+    pthread_mutex_t* mutex;
+    int obtain_ms_value;
+    int release_ms_value;
 
     /**
      * Set to true if the thread completed with success, false
      * if an error occurred.
-     */
+    */
     bool thread_complete_success;
 };
 

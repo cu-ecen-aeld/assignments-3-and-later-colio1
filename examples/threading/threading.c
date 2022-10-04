@@ -2,8 +2,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-// https://fotos.johanna-unternaehrer.ch/p769275231
-// https://darnellrenee.zenfolio.com/p858690713/h2e56d3dd#h3e30f219
 
 // Optional: use these functions to add debug or error prints to your application
 #define DEBUG_LOG(msg,...)

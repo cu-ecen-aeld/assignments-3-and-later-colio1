@@ -43,12 +43,13 @@ else
 fi
 
 #echo "Removing the old writer utility and compiling as a native application"
-
-#imake clean
-#make CROSS_COMPILE=aarch64-none-linux-gnu- all
+# make clean
+# make CROSS_COMPILE=aarch64-none-linux-gnu-
+# make
 
 for i in $( seq 1 $NUMFILES)
 do
+	# ./writer "$WRITEDIR/${username}$i.txt" "$WRITESTR"
 	writer "$WRITEDIR/${username}$i.txt" "$WRITESTR"
 done
 

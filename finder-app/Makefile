@@ -1,20 +1,30 @@
-SRC := writer.c
-TARGET = writer
-OBJS := $(SRC:.c=.o)
+INCLUDE_DIRS =
+LIB_DIRS =
 
-# CFLAGS=-g -Wall
-LDFLAGS= 
+CC = $(CROSS_COMPILE)gcc
 
-all: $(TARGET)
+CDEFS=
+CFLAGS= -O0 -g -Wall $(INCLUDE_DIRS) $(CDEFS)
+LIBS=
+
+TARGET= writer
+
+HFILES=
+CFILES= writer.c
+
+SRCS= ${HFILES} ${CFILES}
+OBJS= ${CFILES:.c=.o}
+
+all:	${TARGET}
+
+writer:	writer.o
+	$(CC) $(LDFLAGS) $(CFLAGS) -static -o $@ writer.o $(LIBS)
 
 clean:
-	-rm -f *.o $(TARGET) *.elf *.map
+	rm -f *.o
+	rm -f ${TARGET}
 
-ifeq ($(CROSS_COMPILE),aarch64-none-linux-gnu-)
-USER_CC=aarch64-none-linux-gnu-gcc
-else
-USER_CC=gcc
-endif
+depend:
 
-$(TARGET) : $(OBJS)
-	$(USER_CC) $(CFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS)
+.c.o:
+	$(CC) $(CFLAGS) -c $<

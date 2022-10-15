@@ -1,30 +1,13 @@
-INCLUDE_DIRS =
-LIB_DIRS =
-
 CC = $(CROSS_COMPILE)gcc
 
-CDEFS=
-CFLAGS= -O0 -g -Wall $(INCLUDE_DIRS) $(CDEFS)
-LIBS=
+CFLAGS  = -Wall -Werror
 
-TARGET= aesdsocket
+TARGET = writer
 
-HFILES=
-CFILES= aesdsocket.c
+all: $(TARGET)
 
-SRCS= ${HFILES} ${CFILES}
-OBJS= ${CFILES:.c=.o}
-
-all:	${TARGET}
-
-$(TARGET):	$(TARGET).o
-	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TARGET).o $(LIBS)
+$(TARGET): $(TARGET).c
+	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).c
 
 clean:
-	rm -f *.o
-	rm -f ${TARGET}
-
-depend:
-
-.c.o:
-	$(CC) $(CFLAGS) -c $<
+	$(RM) $(TARGET) $(TARGET).o

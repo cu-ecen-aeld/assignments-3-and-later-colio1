@@ -248,6 +248,7 @@ int main(int argc, char* argv[])
         syslog(LOG_INFO, "Closed connection from %s\n", inet_ntoa(connect_address.sin_addr));
         free(buffer_ptr);
         buffer_ptr = NULL;
+		remove(WRITE_TO_FILE);
     }
     gracefull_exit();
     return 0;

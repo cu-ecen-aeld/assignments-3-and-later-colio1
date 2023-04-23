@@ -2,7 +2,7 @@ CC = $(CROSS_COMPILE)gcc
 
 CFLAGS  = -Wall -Werror
 
-TARGET = writer
+TARGET = aesdsocket
 
 all: $(TARGET)
 

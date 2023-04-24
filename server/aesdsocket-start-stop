@@ -1,17 +1,40 @@
 #!/bin/sh
 
+DAEMON=/usr/bin/aesdsocket
+
+start ()
+{
+    echo "Starting aesdsocket server"
+    start-stop-daemon -S -n aesdsocket -a $DAEMON -d
+}
+
+stop ()
+{
+    echo "Stopping aesdsocket server"
+    start-stop-daemon -K -n aesdsocket
+}
+
+restart ()
+{
+    stop
+    start
+}
+
+[ -e $DAEMON ] || exit 1
+
 case $1 in
 	start)
-		echo "Starting aesdsocket server"
-		start-stop-daemon -S -n aesdsocket -a /usr/bin/aesdsocket -- -d
+		start;
 		;;
 	stop)
-		echo "Stopping aesdsocket server"
-		start-stop-daemon -K -n aesdsocket
+		stop;
+		;;
+	restart)
+		restart;
 		;;
 	*)
-		echo "Usage: $0 {start|stop}"
-	exit 1
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
 esac
 
-exit 0
+exit $?

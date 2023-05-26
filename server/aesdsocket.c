@@ -393,6 +393,7 @@ int main(int argc, char* argv[])
    // set up to signal SIGALRM if timer expires
    timer_create(CLOCK_REALTIME, NULL, &timer_1);
    timer_settime(timer_1, 0, &itime, &last_itime);
+   signal(SIGALRM, (void(*)()) timestamp); //Call Timestamp every 10s
 
    //
    if (listen(sockfd, MAX_CONNECTIONS) == ERROR)
@@ -451,9 +452,6 @@ int main(int argc, char* argv[])
       }
       else
       {
-         if(conn_count == 0)
-            signal(SIGALRM, (void(*)()) timestamp); //Call Timestamp every 10s
-      
          conn_threadParams = malloc(sizeof(slist_tparams_t));
          // Copy to struct
          conn_threadParams->threadIdx = conn_count;

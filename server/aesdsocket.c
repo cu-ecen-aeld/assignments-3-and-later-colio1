@@ -287,12 +287,9 @@ Description:
 *******************************************************************************/
 int main(int argc, char* argv[])
 {
-   bool is_daemon = false;
    int conn_curr;
    int conn_count;
    int rc = 0;
-   int stdin_fd;
-   int stdouterr_fd;
    struct sigaction act;
    struct sockaddr_in serv_addr;
    slist_tparams_t *conn_threadParams = NULL;
@@ -310,7 +307,7 @@ int main(int argc, char* argv[])
    if (argc == 2)
    {
       if (strncmp(argv[1], "-d", 20) == 0)
-         is_daemon = true;
+         daemon(0, 0);
    }
 
    //Open SYSLOG
@@ -349,42 +346,6 @@ int main(int argc, char* argv[])
       return ERROR;
    }
 
-   //Check if daemon
-   if(is_daemon)
-   {
-      pid_t pid = fork();
-      if (pid == ERROR)
-      {
-         syslog(LOG_ERR, "Error: fork");
-         close(sockfd);
-         return ERROR;
-      }
-      if (pid != 0)
-         exit(0);
-
-      pid_t sessionid = setsid();
-      if (sessionid == ERROR)
-      {
-         syslog(LOG_ERR, "Error: setsid");
-         close(sockfd);
-         return ERROR;
-      }
-      if (chdir("/") == ERROR)
-      {
-         syslog(LOG_ERR, "Error: chdir");
-         close(sockfd);
-         return ERROR;
-      }
-
-      stdin_fd = open("/dev/null", O_RDONLY);
-      stdouterr_fd = open("/dev/null", O_WRONLY);
-      dup2(stdin_fd, STDIN_FILENO);
-      dup2(stdouterr_fd, STDOUT_FILENO);
-      dup2(stdouterr_fd, STDERR_FILENO);
-      close(stdin_fd);
-      close(stdouterr_fd);
-   }
-
    // Create Timestamp interval time
    itime.it_interval.tv_sec = TIMESTAMP_INTERVAL;
    itime.it_interval.tv_nsec = 0;
@@ -392,8 +353,8 @@ int main(int argc, char* argv[])
    itime.it_value.tv_nsec = 0;
    // set up to signal SIGALRM if timer expires
    timer_create(CLOCK_REALTIME, NULL, &timer_1);
-   // timer_settime(timer_1, 0, &itime, &last_itime);
-   // signal(SIGALRM, (void(*)()) timestamp); //Call Timestamp every 10s
+   timer_settime(timer_1, 0, &itime, &last_itime);
+   signal(SIGALRM, (void(*)()) timestamp); //Call Timestamp every 10s
 
    //
    if (listen(sockfd, MAX_CONNECTIONS) == ERROR)
@@ -452,11 +413,11 @@ int main(int argc, char* argv[])
       }
       else
       {
-         if(conn_count == 0)
-         {
-            timer_settime(timer_1, 0, &itime, &last_itime);
-            signal(SIGALRM, (void(*)()) timestamp); //Call Timestamp every 10s
-         }
+         // if(conn_count == 0)
+         // {
+            // timer_settime(timer_1, 0, &itime, &last_itime);
+            // signal(SIGALRM, (void(*)()) timestamp); //Call Timestamp every 10s
+         // }
 
          conn_threadParams = malloc(sizeof(slist_tparams_t));
          // Copy to struct

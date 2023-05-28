@@ -54,7 +54,7 @@ pthread_mutex_t mutex;
 pthread_mutexattr_t mutex_attr;
 static timer_t timer_1;
 static struct itimerspec itime = {{1,0}, {1,0}};
-static struct itimerspec last_itime;
+// static struct itimerspec last_itime;
 
 /*******************************************************************************
 * PROTOTYPES
@@ -88,9 +88,9 @@ Description:
 *******************************************************************************/
 void gracefull_exit(void)
 {
-    close(sockfd);
-    close(socket_file_fd);
-    remove(WRITE_TO_FILE);
+   close(sockfd);
+   close(socket_file_fd);
+   remove(WRITE_TO_FILE);
 }
 
 /*******************************************************************************
@@ -254,7 +254,7 @@ void timestamp(void)
    strcat(result, "\n");         // Add a newline to result
 
    // Write Timestamp
-  if(pthread_mutex_lock(&mutex) == 0)
+   if(pthread_mutex_lock(&mutex) == 0)
    {
       rc_sync = fsync(socket_file_fd);
       if (rc_sync == ERROR)
@@ -306,7 +306,7 @@ int main(int argc, char* argv[])
    // Input arguments
    if (argc == 2)
    {
-      if (strncmp(argv[1], "-d", 20) == 0)
+      if (strncmp(argv[1], "-d", 2) == 0)
          daemon(0, 0);
    }
 
@@ -345,6 +345,20 @@ int main(int argc, char* argv[])
       syslog(LOG_ERR, "Error: Bind");
       return ERROR;
    }
+   if (listen(sockfd, MAX_CONNECTIONS) == ERROR)
+   {
+      syslog(LOG_ERR, "Error: Max number of connections reached.");
+      close(sockfd);
+      return ERROR;
+   }
+
+   //Open file
+   socket_file_fd = open(WRITE_TO_FILE, O_RDWR | O_CREAT | O_APPEND, 0644);
+   if (socket_file_fd == ERROR)
+   {
+      syslog(LOG_ERR, "Error: File");
+      return ERROR;
+   }
 
    // Create Timestamp interval time
    itime.it_interval.tv_sec = TIMESTAMP_INTERVAL;
@@ -353,24 +367,10 @@ int main(int argc, char* argv[])
    itime.it_value.tv_nsec = 0;
    // set up to signal SIGALRM if timer expires
    timer_create(CLOCK_REALTIME, NULL, &timer_1);
-   timer_settime(timer_1, 0, &itime, &last_itime);
+   timer_settime(timer_1, 0, &itime, NULL);
    signal(SIGALRM, (void(*)()) timestamp); //Call Timestamp every 10s
 
-   //
-   if (listen(sockfd, MAX_CONNECTIONS) == ERROR)
-   {
-      syslog(LOG_ERR, "Error: Max number of connections reached.");
-      close(sockfd);
-      return ERROR;
-   }
-
-   socket_file_fd = open(WRITE_TO_FILE, O_RDWR | O_CREAT | O_APPEND, 0644);
-   if (socket_file_fd == ERROR)
-   {
-      syslog(LOG_ERR, "Error: File");
-      return ERROR;
-   }
-
+   //Wait for connection
    conn_count = 0;
    while(1)
    {
@@ -413,12 +413,6 @@ int main(int argc, char* argv[])
       }
       else
       {
-         // if(conn_count == 0)
-         // {
-            // timer_settime(timer_1, 0, &itime, &last_itime);
-            // signal(SIGALRM, (void(*)()) timestamp); //Call Timestamp every 10s
-         // }
-
          conn_threadParams = malloc(sizeof(slist_tparams_t));
          // Copy to struct
          conn_threadParams->threadIdx = conn_count;
